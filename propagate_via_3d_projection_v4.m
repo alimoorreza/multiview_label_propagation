@@ -8,10 +8,28 @@ function propagate_via_3d_projection_v4()
 close all;
 %**************************************************************************
 if (~exist('video_name', 'var'))
-    %video_name        = 'Home_001_1';
-    video_name        = 'Home_002_1';
+    video_name        = 'Home_001_1';
+    %video_name        = 'Home_002_1';
 
 end
+
+%**************************************************************************
+%------------            root directory and other directory names for                     ------------             
+%src_dir               = '/Volumes/reza_drive_iu/gmu_research/label_props/'; % CHANGE THIS ROOT DIR FIRST
+src_dir               = '/Users/reza/Desktop/';
+img_dir              = [src_dir video_name '/jpg_rgb/'];                                  % rgb image directory
+label_dir             = [src_dir video_name '/' video_name '_sseg/'];               % per-frame semantic segmentation predicted image directory
+depth_dir           = [src_dir video_name '/high_res_depth/'];                      % depth file directory used for depth-limit test inside projection
+hand_picked_dir = [src_dir video_name '/' video_name '_sseg/hand_picked_prediction/'];
+
+
+if (~exist('predDirName', 'var'))
+    predDirName = [video_name '_sseg_smoothed'];
+end
+
+predPath       = [src_dir '/' video_name '/' predDirName '/']; 
+
+%**************************************************************************
 
 rgbExtension              = '01';
 depthExtension          = '03';
@@ -45,14 +63,6 @@ WINDOW_TYPE_RIGHT                  =  3;
 
 
 % len(ade20k_dict) + len(lvis_dict) + len(avd_dict) = 150 + 1203 + 33 (+1 background from avd) = 1387
-
-%**************************************************************************
-%------------            root directory and other directory names for                     ------------             
-src_dir               = '/Volumes/reza_drive_iu/gmu_research/label_props/'; % root directory
-img_dir              = [src_dir video_name '/jpg_rgb/'];                                  % rgb image directory
-label_dir             = [src_dir video_name '/' video_name '_sseg/'];               % per-frame semantic segmentation predicted image directory
-depth_dir           = [src_dir video_name '/high_res_depth/'];                      % depth file directory used for depth-limit test inside projection
-hand_picked_dir = [src_dir video_name '/' video_name '_sseg/hand_picked_prediction/'];
 
 
 %**************************************************************************
@@ -418,17 +428,7 @@ for ii = start:finish% totalFramesInVideo
             end
 
             
-            
-            %%% find the indices that fall within the range of the image 
-            %%% (REZA: 02/03/18 already prunned based on (3D camera-coordinate + image-coordinate))            
-            %tmpIndex        = find((curProjX > 0 & curProjX <= x2) & (curProjY > 0 & curProjY <= y2)); % CHANGE THE x2+y2 later on with parameter value
-            %projIndices     = tmpIndex';
-    
-            %curProjX    = curProjX(projIndices);
-            %curProjY    = curProjY(projIndices);    
-            %curProjL    = curLabel(projIndices);
-            %curProjF    = curFrame(projIndices);
-            
+                       
     
             % find the intersected projected pixels and current pixels within the superpixels
             projIndex                                   = sub2ind([nRows, nCols], curProjY, curProjX);            
@@ -483,20 +483,15 @@ for ii = start:finish% totalFramesInVideo
         
         %keyboard;
 
-        %for nn=0:nLabel
         for nn=1:nLabel
-            %curPwDataTermG          = pwDataTermG(:,:,nn+1);
             curPwDataTermG          = pwDataTermG(:,:,nn);
             % average of the scores from frames where a projection was found
 
-            %idxFrames = find(isProjected(nn+1,:));
             idxFrames = find(isProjected(nn,:));
             if (~isempty(idxFrames))
-                % curScore                           = mean( geomScores(nn+1, idxFrames) );            
                 curScore                           = mean( geomScores(nn, idxFrames) );            
                 curPwDataTermG(seg)      = curScore;                     
-                %pwDataTermG(:,:,nn+1)    = curPwDataTermG;
-                pwDataTermG(:,:,nn)    = curPwDataTermG;
+                pwDataTermG(:,:,nn)     = curPwDataTermG;
 
             end
 
@@ -558,50 +553,12 @@ for ii = start:finish% totalFramesInVideo
     
     end    
     
-    visualize_and_save_prediction(destLabelP, L, src_dir, video_name, fileNameC, rgbExtension, rgbFileType);
+    visualize_and_save_prediction(destLabelP, L, src_dir, video_name, fileNameC, rgbExtension, rgbFileType, predPath);
         
     
 end
 
-if (~exist('predDirName', 'var'))
-    predDirName = [video_name '_sseg_smoothed'];
-end
-
-predPath       = [src_dir '/' video_name '/' predDirName '/figure/']; 
-if (~exist(predPath, 'dir'))
-    mkdir(predPath);
-end
-save(fullfile(predPath, [video_name '_sampledFramesAll.mat']), 'sampledFramesAll')
-
-    
-
-
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-
-% Display the results for columns
-%{
-disp('Maximum values for each column position:');
-disp(max_values_depth);
-disp('Indices of maximum values for each column position:');
-disp(max_indices_depth);
-%}
-
-    
-
-
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% %     imwrite(rgbC, '0077.ppm');
-% %     %write_data(pwDataTermC, [save_dir_unary  fileNameC '_cu']);
-% %     writeDataTxt(pwDataTermC, [save_dir_unary  fileNameC '_cu']);
-% %     save([save_dir_unary  fileNameC '_uf.mat'], 'segCur'); % save the flow-based unary
-
-
+  
    
 
 end

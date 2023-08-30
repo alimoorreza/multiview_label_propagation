@@ -1,6 +1,6 @@
 function [projections] = compute_projection_with_occlusion_visibility(params)    
 
-    % This function is for ...
+    % This function ...
     
     % Md Alimoor Reza: 08/2023
     % md.reza@drake.edu
@@ -264,12 +264,9 @@ function [projections] = compute_projection_with_occlusion_visibility(params)
         %figure; imagesc(rgbLabel); title(['frame being projected ' propagatedFrameName]);
         pause; %close(f3);
         close all;
-        %pts = XYZcamera;plot3(pts(1:500:end,1), pts(1:500:end,2), pts(1:500:end,3), '+g')
+        
     end    
 
-    % figure; projectedLabel = zeros(nRows, nCols); tmpIndex = sub2ind([nRows, nCols], projY, projX); projectedLabel(tmpIndex) = tmpLabelP; imagesc(projectedLabel); title('Projected labels');
-    % pause;
-    % close all;
     
 end
     

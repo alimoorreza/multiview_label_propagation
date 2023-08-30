@@ -1,4 +1,4 @@
-srcDir                                = '/Volumes/reza_drive_iu/gmu_research/label_props/'; % root directory
+srcDir                                = './'; % root directory
 
 if ~exist([srcDir 'colors_all.mat'])
     %%%%%%%%%%%%%%%%%%            AVD         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
